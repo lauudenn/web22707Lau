@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🌸 Login - Gestor bici taxis🌸</title>
+    <style>
+        body { background-color: #FFF0F5; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4); text-align: center; width: 300px; }
+        h2 { color: #FF69B4; margin-bottom: 20px; }
+        input { padding: 12px; border-radius: 10px; border: 2px solid #FFB6C1; width: 90%; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
+        button { background-color: #FF69B4; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { background-color: #FF1493; }
+        .error { color: #FF6B6B; font-size: 14px; margin-bottom: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>🌸Iniciar Sesión🌸</h2>
+    <div id="errorMsg" class="error">Usuario o contraseña incorrectos</div>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Usuario" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="submit">Ingresar</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+            window.location.href = '/index.html'; 
+        } else {
+            document.getElementById('errorMsg').style.display = 'block'; 
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🌸Gestor de bici taxis🌸</title>
+    <link rel="icon" href="./gatobici.jpg" type="image/x-icon">
+    <style>
+        body { background-color: #F4F7F6; font-family: 'Segoe UI', sans-serif; color: #5D4037; margin: 0; }
+        nav { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-bottom: 3px solid #FFB6C1; }
+        .dashboard-container { padding: 20px; }
+        .stats-row { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        input { padding: 10px; border-radius: 10px; border: 2px solid #FFB6C1; width: 250px; }
+        button { background-color: #FF69B4; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+        table { width: 100%; background: white; border-collapse: collapse; border-radius: 15px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .btn-action { margin: 2px; font-size: 12px; border-radius: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h2 style="color: #FF69B4;">🌸 Operaciones 🌸</h2>
+    <div>
+        <input type="text" id="buscador" placeholder=" Buscar por modelo..." onkeyup="cargarBicis()">
+        <button onclick="logout()" style="background-color: #FF6B6B; margin-left: 10px;">🌸Cerrar Sesión🌸</button>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+    <div class="stats-row">
+        <div class="card" style="width: 200px; text-align: center;">
+            <p style="font-size: 12px; color: #888;">🌸TOTAL BICIS🌸</p>
+            <h3 id="totalBicis" style="font-size: 24px; color: #FF69B4;">0</h3>
+        </div>
+        <div class="card" style="width: 200px; text-align: center;">
+            <p style="font-size: 12px; color: #888;">🌸ESTADO🌸</p>
+            <h3 style="font-size: 24px; color: #4CAF50;">✨ Operativo✨</h3>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Inventario de Vehículos</h3>
+        <form id="registroForm" style="margin-bottom: 20px;">
+            <input type="text" id="modelo" placeholder="Nuevo Modelo" required>
+            <button type="submit">Añadir bici taxi</button>
+        </form>
+        <table id="tablaBicis">
+            <thead><tr><th>ID</th><th>Modelo</th><th>Acciones</th></tr></thead>
+            <tbody id="listaBicis"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // verificar sesion activa
+    async function verificarSesion() {
+        const res = await fetch('/api/bicis');
+        if (res.status === 401) {
+            
+            window.location.href = '/login.html';
+        } else {
+            
+            cargarBicis();
+        }
+    }
+
+    // obtener los datos y registros
+    async function cargarBicis() {
+        const busqueda = document.getElementById('buscador').value;
+        const res = await fetch(`/api/bicis?search=${busqueda}`);
+        
+        if (res.status === 401) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        const data = await res.json();
+        
+        const lista = document.getElementById('listaBicis');
+        lista.innerHTML = data.map(b => `
+            <tr>
+                <td>${b.id}</td>
+                <td>${b.modelo}</td>
+                <td>
+                    <button class="btn-action" onclick="editarBici(${b.id}, '${b.modelo}')" style="background:#FFD700;">Editar</button>
+                    <button class="btn-action" onclick="eliminarBici(${b.id})" style="background:#FF6B6B;">Eliminar</button>
+                </td>
+            </tr>
+        `).join('');
+        document.getElementById('totalBicis').innerText = data.length;
+    }
+
+    // crear nuevo regustro
+    document.getElementById('registroForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const modelo = document.getElementById('modelo').value;
+        await fetch('/api/bicis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ modelo })
+        });
+        document.getElementById('modelo').value = '';
+        cargarBicis();
+    });
+
+    //eliminar registro
+    async function eliminarBici(id) {
+        if(confirm('¿Eliminar el vehiculo? 🌸')) {
+            await fetch(`/api/bicis/${id}`, { method: 'DELETE' });
+            cargarBicis();
+        }
+    }
+
+    //modificar registro
+    async function editarBici(id, modeloActual) {
+        const nuevoNombre = prompt('Editar nombre del vehiculo:', modeloActual);
+        if(nuevoNombre) {
+            await fetch(`/api/bicis/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modelo: nuevoNombre })
+            });
+            cargarBicis();
+        }
+    }
+
+    //cerrar sesion
+    async function logout() {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+    }
+
+    // seguridad
+    verificarSesion();
+</script>
+</body>
+</html>
