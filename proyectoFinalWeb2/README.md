@@ -1,5 +1,4 @@
-# 🌸 Sistema de Gestión de Bici Taxis y Mantenimiento 🌸
-
+## Gestor de bici taxis
 Este proyecto consiste en una aplicación web con contenedores  que permite administrar el inventario de unidades de bici taxis, controlando aquellas que se encuentran operativas y las que ingresan a mantenimiento. El sistema cuenta con un módulo de autenticación seguro y un panel de control interactivo
 
 ## Arquitectura del Sistema
