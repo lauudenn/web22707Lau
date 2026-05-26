@@ -57,7 +57,7 @@ async function inicializarBaseDeDatos() {
             console.log("✨ Tablas creadas y usuarios inyectados con éxito ✨");
         }
     } catch (err) {
-        console.error("❌ Error al crear las tablas:", err.message);
+        console.error("Error al crear las tablas:", err.message);
     }
 }
 
